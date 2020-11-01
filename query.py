@@ -48,7 +48,7 @@ def preprocess(text):
 Converting the news dataset to a pandas dataframe and omitting other info
 """
 
-data = pd.read_json('/Users/advithchegu/Desktop/Random Code/twitter-dash/News_Category_Dataset_v2.json', lines=True)
+data = pd.read_json('News_Category_Dataset_v2.json', lines=True)
 data['to_vec'] = data[['category', 'headline']].agg(' '.join, axis=1)
 data.set_index('headline', drop=True, append=False, inplace=False, verify_integrity=False)
 data['index'] = data.index
