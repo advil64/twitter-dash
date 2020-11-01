@@ -92,9 +92,8 @@ def getTwitterTimeline(username):
         for index, score in sorted(lda_model[bow_vector], key=lambda tup: -1 * tup[1]):
             topic = lda_model.print_topic(index, 5)
             if topic in topics:
-                topics.update({topic: topics.get(topic) + score})
+                topics.update({topic: topics.get(topic) + np.float64(score)})
             else:
-                topics.update({topic: score})
+                topics.update({topic: np.float64(score)})
     sorted_topics = {k: v for k, v in sorted(topics.items(), key=lambda item: item[1], reverse=True)}
-    print(list(sorted_topics.values()))
-    return list(sorted_topics.keys())
+    return sorted_topics

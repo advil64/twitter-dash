@@ -2,6 +2,7 @@ from flask import Flask, abort, request, url_for, Blueprint
 from flask_restx import Resource, Api, fields
 from flask_cors import CORS
 from .utils.query import getTwitterInfo, getTwitterTimeline
+import json
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -23,7 +24,7 @@ GET_TWITTER_INFO = api.model("UserInfo", {
     "bio": fields.String(),
     "date_created": fields.DateTime(dt_format="iso8601"),
     "display_name": fields.String(),
-    "tweet_vector": fields.List(fields.String())})
+    "lda": fields.Raw()})
 
 # documentation for swagger UI
 ns_analytics = api.namespace(
@@ -52,4 +53,4 @@ class GetUserAnalytics(Resource):
                 "bio": user.description,
                 "date_created": user.created_at,
                 "display_name": user.name,
-                "tweet_vector": vec}
+                "tweet_vector": json.dumps(vec)}
