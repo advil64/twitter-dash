@@ -1,8 +1,11 @@
 import tweepy
-from .creds import consumer_key, consumer_secret, access_token, access_token_secret
+from dotenv import load_dotenv
+import os
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
+load_dotenv()
+
+auth = tweepy.OAuthHandler(os.environ.get("consumer_key"), os.environ.get("consumer_secret"))
+auth.set_access_token(os.environ.get("access_token"), os.environ.get("access_token_secret"))
 
 api = tweepy.API(auth)
 
@@ -11,4 +14,7 @@ Uses tweepy to get information about the twitter user
 """
 
 def getTwitterInfo(username):
-    return api.get_user(username)
+    return api.get_user(screen_name=username)
+
+def getTwitterTimeline(username):
+    return api.user_timeline(screen_name=username)

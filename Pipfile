@@ -4,14 +4,20 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pylint = "*"
 
 [packages]
 flask = "*"
 flask-restx = "*"
 flask-cors = "*"
 tweepy = "*"
-black = "*"
+autopep8 = "*"
+ipykernel = "*"
+pandas = "*"
+jupyter = "*"
+notebook = "*"
+python-dotenv = "*"
+gensim = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.7"
