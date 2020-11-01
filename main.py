@@ -1,11 +1,13 @@
 from flask import Flask, abort, request, url_for, Blueprint
 from flask_restx import Resource, Api, fields
 from flask_cors import CORS
-from query import getTwitterInfo, getTwitterTimeline
+from .query import getTwitterInfo, getTwitterTimeline
 import json
+from flask_ngrok import run_with_ngrok
 
 app = Flask(__name__)
 cors = CORS(app)
+run_with_ngrok(app)
 
 blueprint = Blueprint("api", __name__, url_prefix="/api")
 

@@ -19,6 +19,7 @@ gensim = "*"
 nltk = "*"
 ipykernel = "*"
 gunicorn = "*"
+flask-ngrok = "*"
 
 [requires]
 python_version = "3.7"
