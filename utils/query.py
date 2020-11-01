@@ -49,17 +49,17 @@ Converting the news dataset to a pandas dataframe and omitting other info
 """
 
 data = pd.read_json('/Users/advithchegu/Desktop/Random Code/twitter-dash/News_Category_Dataset_v2.json', lines=True)
-data_text = data[['headline']]
-data_text.set_index('headline', drop=True, append=False, inplace=False, verify_integrity=False)
-data_text['index'] = data_text.index
-documents = data_text
+data['to_vec'] = data[['category', 'headline']].agg(' '.join, axis=1)
+data.set_index('headline', drop=True, append=False, inplace=False, verify_integrity=False)
+data['index'] = data.index
+documents = data
 print("Loaded into dataframe")
 
 """
 pre process the news headlines to lemmatize and destem
 """
 
-processed_docs = documents['headline'].map(preprocess)
+processed_docs = documents['to_vec'].map(preprocess)
 print("Headlines preprocessing complete!")
 
 """
@@ -72,7 +72,7 @@ bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
 print("Bag or words corpus created")
 tfidf = models.TfidfModel(bow_corpus)
 corpus_tfidf = tfidf[bow_corpus]
-gensim.models.LdaMulticore(bow_corpus, num_topics=40, id2word=dictionary, passes=2, workers=2)
+lda_model = gensim.models.LdaMulticore(bow_corpus, num_topics=40, id2word=dictionary, passes=2, workers=2)
 print("Model building complete")
 
 """
@@ -83,8 +83,18 @@ def getTwitterInfo(username):
     return api.get_user(screen_name=username)
 
 def getTwitterTimeline(username):
-    timeline = api.user_timeline(screen_name=username)
-    latest_tweet = timeline[0].text
-    bow_vector = dictionary.doc2bow(preprocess(latest_tweet))
-    vector = lda_model[bow_vector].print_topic(0, 5)
-    return vector
+    topics = {}
+    timeline = api.user_timeline(screen_name=username, count=100)
+    tweets_for_csv = [tweet.text for tweet in timeline]
+    # Traverse through the first 100 tweets
+    for latest_tweet in tweets_for_csv:
+        bow_vector = dictionary.doc2bow(preprocess(latest_tweet))
+        for index, score in sorted(lda_model[bow_vector], key=lambda tup: -1 * tup[1]):
+            topic = lda_model.print_topic(index, 5)
+            if topic in topics:
+                topics.update({topic: topics.get(topic) + score})
+            else:
+                topics.update({topic: score})
+    sorted_topics = {k: v for k, v in sorted(topics.items(), key=lambda item: item[1])}
+    print(list(sorted_topics.values()))
+    return list(sorted_topics.keys())

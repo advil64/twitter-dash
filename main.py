@@ -23,7 +23,7 @@ GET_TWITTER_INFO = api.model("UserInfo", {
     "bio": fields.String(),
     "date_created": fields.DateTime(dt_format="iso8601"),
     "display_name": fields.String(),
-    "tweet_vector": fields.String()})
+    "tweet_vector": fields.List(fields.String())})
 
 # documentation for swagger UI
 ns_analytics = api.namespace(
