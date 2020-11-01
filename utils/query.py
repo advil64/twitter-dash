@@ -95,6 +95,6 @@ def getTwitterTimeline(username):
                 topics.update({topic: topics.get(topic) + score})
             else:
                 topics.update({topic: score})
-    sorted_topics = {k: v for k, v in sorted(topics.items(), key=lambda item: item[1])}
+    sorted_topics = {k: v for k, v in sorted(topics.items(), key=lambda item: item[1], reverse=True)}
     print(list(sorted_topics.values()))
     return list(sorted_topics.keys())

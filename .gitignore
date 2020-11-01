@@ -6,4 +6,3 @@ training.1600000.processed.noemoticon.csv
 abcnews-date-text.csv
 .env
 .ipynb_checkpoints
-News_Category_Dataset_v2.json
