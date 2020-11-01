@@ -23,7 +23,7 @@ GET_TWITTER_INFO = api.model("UserInfo", {
     "bio": fields.String(),
     "date_created": fields.DateTime(dt_format="iso8601"),
     "display_name": fields.String(),
-    "latest_tweet": fields.String()})
+    "tweet_vector": fields.String()})
 
 # documentation for swagger UI
 ns_analytics = api.namespace(
@@ -46,10 +46,10 @@ class GetUserAnalytics(Resource):
     def get(self):
         # user's screen name
         user = getTwitterInfo(request.args.get("Username"))
-        timeline = getTwitterTimeline(request.args.get("Username"))
+        vec = getTwitterTimeline(request.args.get("Username"))
         return {"username": user.screen_name,
                 "profile_url": user.profile_image_url,
                 "bio": user.description,
                 "date_created": user.created_at,
                 "display_name": user.name,
-                "latest_tweet": timeline[0].text}
+                "tweet_vector": vec}

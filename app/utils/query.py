@@ -1,13 +1,79 @@
 import tweepy
 from dotenv import load_dotenv
 import os
+import pandas as pd
+import gensim
+import numpy as np
+import nltk
+from gensim.utils import simple_preprocess
+from gensim.parsing.preprocessing import STOPWORDS
+from nltk.stem import WordNetLemmatizer, SnowballStemmer
+from nltk.stem.porter import *
+from gensim import corpora, models
 
+
+"""
+Prepping dependencies
+"""
 load_dotenv()
+nltk.download('wordnet')
+np.random.seed(2020)
+stemmer = SnowballStemmer("english")
+stop_words = ['http']
+
+"""
+Getting twitter credentials from environment variables and instantiating a tweepy instance
+"""
 
 auth = tweepy.OAuthHandler(os.environ.get("consumer_key"), os.environ.get("consumer_secret"))
 auth.set_access_token(os.environ.get("access_token"), os.environ.get("access_token_secret"))
 
 api = tweepy.API(auth)
+
+"""
+Text preprocessing
+"""
+
+def lemmatize_stemming(text):
+    return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos='v'))
+
+def preprocess(text):
+    result = []
+    for token in gensim.utils.simple_preprocess(text):
+        if token not in gensim.parsing.preprocessing.STOPWORDS and len(token) > 3 and token not in stop_words and '@' not in token:
+            result.append(lemmatize_stemming(token))
+    return result
+
+"""
+Converting the news dataset to a pandas dataframe and omitting other info
+"""
+
+data = pd.read_json('/Users/advithchegu/Desktop/Random Code/twitter-dash/News_Category_Dataset_v2.json', lines=True)
+data_text = data[['headline']]
+data_text.set_index('headline', drop=True, append=False, inplace=False, verify_integrity=False)
+data_text['index'] = data_text.index
+documents = data_text
+print("Loaded into dataframe")
+
+"""
+pre process the news headlines to lemmatize and destem
+"""
+
+processed_docs = documents['headline'].map(preprocess)
+print("Headlines preprocessing complete!")
+
+"""
+generate the corpus and the bag of words model and finally the lda model
+"""
+
+dictionary = gensim.corpora.Dictionary(processed_docs)
+dictionary.filter_extremes(no_below=15, no_above=0.5, keep_n=100000)
+bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
+print("Bag or words corpus created")
+tfidf = models.TfidfModel(bow_corpus)
+corpus_tfidf = tfidf[bow_corpus]
+gensim.models.LdaMulticore(bow_corpus, num_topics=40, id2word=dictionary, passes=2, workers=2)
+print("Model building complete")
 
 """
 Uses tweepy to get information about the twitter user
@@ -17,4 +83,8 @@ def getTwitterInfo(username):
     return api.get_user(screen_name=username)
 
 def getTwitterTimeline(username):
-    return api.user_timeline(screen_name=username)
+    timeline = api.user_timeline(screen_name=username)
+    latest_tweet = timeline[0].text
+    bow_vector = dictionary.doc2bow(preprocess(latest_tweet))
+    vector = lda_model[bow_vector].print_topic(0, 5)
+    return vector
