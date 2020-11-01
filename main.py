@@ -1,7 +1,7 @@
 from flask import Flask, abort, request, url_for, Blueprint
 from flask_restx import Resource, Api, fields
 from flask_cors import CORS
-from .query import getTwitterInfo, getTwitterTimeline
+from query import getTwitterInfo, getTwitterTimeline
 import json
 
 app = Flask(__name__)
